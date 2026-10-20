@@ -2,7 +2,7 @@
 
 Optional, organization-hosted mail features in one Go executable, one SQLite data volume and one in-process delivery worker. No Redis, external database server or access to the mail server's internal database is required. This is a small stateful feature service, not a stateless proxy.
 
-This is an independent open-source project maintained by RAVEN Developers Ltd. It can be deployed without the Mail App Maker source tree; Maker includes it as an optional Git submodule. Organizations host and operate their own service. The companion does not host a mail server or replace IMAP/SMTP.
+This is an independent source-available project maintained by RAVEN Developers Ltd. It can be deployed without the Mail App Maker source tree; Maker includes it as an optional Git submodule. Organizations host and operate their own service. The companion does not host a mail server or replace IMAP/SMTP.
 
 | Feature | Implementation |
 | --- | --- |
@@ -75,6 +75,6 @@ Schema 6 removes legacy employee-credential tables and old push registrations. E
 
 ## License
 
-[MIT](LICENSE): free personal/commercial use, modification and redistribution; retain the RAVEN Developers Ltd. copyright and license notice.
+Copyright (c) 2026 RAVEN Developers Ltd. This revision uses the full [PolyForm Noncommercial 1.0.0 license](LICENSE): personal and permitted noncommercial use are free; commercial use requires a separate paid written license. Contact **sales@raven-dev.tech**. Keep [NOTICE](NOTICE), including the Required Notice, with redistributed copies. This restriction means the project is source-available, not OSI open source.
 
-Include the complete MIT notice with redistributed source or binaries. The license does not require a visible advertising badge, confer ownership of RAVEN trademarks, or remove the separate licenses of Go dependencies. No warranty or hosted service is included.
+Previously published MIT revisions retain their original grants; this change does not revoke earlier permissions. Third-party dependencies keep their own licenses. No trademark rights, warranty or hosted service are included. Commercial licensing is not a per-mailbox database quota or an automatic recurring subscription; its scope/price must be agreed separately.

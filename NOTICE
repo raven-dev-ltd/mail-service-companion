@@ -1,0 +1,14 @@
+Mail Service Companion
+Required Notice: Copyright (c) 2026 RAVEN Developers Ltd.
+
+This revision is source-available under PolyForm Noncommercial 1.0.0.
+Personal and permitted noncommercial use are free; commercial use requires
+a separate paid written license from RAVEN Developers Ltd.
+Commercial licensing: sales@raven-dev.tech
+Security/support: support@raven-dev.tech
+
+Retain this Required Notice and the license with redistributed copies.
+Third-party Go dependencies keep their own licenses and notices; their
+copyright is not claimed by RAVEN Developers Ltd. Brand/trademark rights
+are separate. Prior revisions distributed under MIT retain those grants;
+the license change does not retroactively revoke them.
