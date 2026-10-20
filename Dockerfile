@@ -9,6 +9,7 @@ RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /mail-companion ./cmd/m
 
 FROM scratch
 COPY LICENSE /LICENSE
+COPY NOTICE /NOTICE
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /mail-companion /mail-companion
 COPY --from=build --chown=10001:10001 /data /data

@@ -1,14 +1,15 @@
 Mail Service Companion
-Required Notice: Copyright (c) 2026 RAVEN Developers Ltd.
+Copyright (c) 2026 RAVEN Developers Ltd.
+SPDX-License-Identifier: GPL-3.0-only
 
-This revision is source-available under PolyForm Noncommercial 1.0.0.
-Personal and permitted noncommercial use are free; commercial use requires
-a separate paid written license from RAVEN Developers Ltd.
-Commercial licensing: sales@raven-dev.tech
-Security/support: support@raven-dev.tech
+Original RAVEN-owned source and documentation in this revision are licensed
+under the GNU General Public License, version 3 only. See LICENSE for the
+complete terms. Commercial and noncommercial use are permitted under GPLv3
+without a separate commercial-use license fee. Paid support is optional.
 
-Retain this Required Notice and the license with redistributed copies.
-Third-party Go dependencies keep their own licenses and notices; their
-copyright is not claimed by RAVEN Developers Ltd. Brand/trademark rights
-are separate. Prior revisions distributed under MIT retain those grants;
-the license change does not retroactively revoke them.
+Retain copyright/license notices and comply with the GPL's corresponding
+source requirements when distributing covered software. Third-party Go
+dependencies retain their own copyright and licenses; trademark rights are
+separate. No third-party ownership is claimed. Earlier MIT and PolyForm
+revisions remain governed by their original grants; those grants are not
+revoked by this change.
