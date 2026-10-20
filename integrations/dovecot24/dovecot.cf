@@ -1,0 +1,12 @@
+# Merge with existing local settings; do not replace unrelated configuration.
+protocol lmtp {
+  mail_plugins {
+    mail_lua = yes
+    notify = yes
+    push_notification = yes
+    push_notification_lua = yes
+  }
+}
+push_notification lua {
+  lua_file = /tmp/docker-mailserver/companion-mail-events.lua
+}

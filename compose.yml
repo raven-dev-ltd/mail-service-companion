@@ -1,0 +1,32 @@
+services:
+  companion:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${COMPANION_HTTP_PORT:-8080}:8080"
+    environment:
+      COMPANION_LISTEN: 0.0.0.0:8080
+      COMPANION_DATA_DIR: /data
+      COMPANION_DISABLED_FEATURES: ${COMPANION_DISABLED_FEATURES:-}
+      COMPANION_IMAP_HOST: ${COMPANION_IMAP_HOST:?Set the fixed mail server hostname}
+      COMPANION_IMAP_PORT: ${COMPANION_IMAP_PORT:-993}
+      COMPANION_IMAP_SECURITY: ${COMPANION_IMAP_SECURITY:-implicit-tls}
+      COMPANION_ALLOWED_DOMAINS: ${COMPANION_ALLOWED_DOMAINS:?Set allowed mailbox domains}
+      COMPANION_ALLOWED_ORIGINS: ${COMPANION_ALLOWED_ORIGINS:-https://localhost,capacitor://localhost}
+      COMPANION_SMTP_MODE: ${COMPANION_SMTP_MODE:-disabled}
+      COMPANION_SMTP_HOST: ${COMPANION_SMTP_HOST:-}
+      COMPANION_SMTP_PORT: ${COMPANION_SMTP_PORT:-587}
+      COMPANION_SMTP_SECURITY: ${COMPANION_SMTP_SECURITY:-starttls}
+      COMPANION_SMTP_USERNAME: ${COMPANION_SMTP_USERNAME:-}
+      COMPANION_SMTP_PASSWORD_FILE: ${COMPANION_SMTP_PASSWORD_FILE:-}
+      COMPANION_FCM_CREDENTIALS: ${COMPANION_FCM_CREDENTIALS:-}
+      COMPANION_EVENT_SECRET_FILE: ${COMPANION_EVENT_SECRET_FILE:-}
+    volumes:
+      - companion-data:/data
+      - ${COMPANION_SECRETS_DIR:-./secrets}:/run/secrets:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+volumes:
+  companion-data:

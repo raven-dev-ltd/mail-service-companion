@@ -1,0 +1,21 @@
+[Unit]
+Description=Forward committed mail delivery events to Mail Companion
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=5000
+Group=5000
+EnvironmentFile=/etc/mail-companion-events.env
+ExecStart=/usr/bin/python3 /opt/mail-companion-events/drain-mail-events.py
+RuntimeDirectory=mail-companion-events
+UMask=0077
+TimeoutStartSec=75
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=read-only
+ProtectSystem=strict
+BindPaths=/srv/mailserver/config/companion-events:/var/spool/mail-companion-events
+ReadWritePaths=/var/spool/mail-companion-events /run/mail-companion-events
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
