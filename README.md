@@ -1,5 +1,7 @@
 # Mail Service Companion
 
+Scheduled cancellations are atomic and repeatable: only a pending job can become `CANCELLED`; cancellation never removes sent history or recalls a message already submitting. Upgrade the client template alongside the service to display cancelled jobs and reconcile interrupted cancellations. Future incoming-mail rules still run on the mail server's Sieve service, not a companion mailbox worker.
+
 Optional, organization-hosted mail features in one Go executable, one SQLite data volume and one in-process delivery worker. No Redis, external database server or access to the mail server's internal database is required. This is a small stateful feature service, not a stateless proxy.
 
 This is an independent open-source project maintained by RAVEN Developers Ltd. It can be deployed without the Mail App Maker source tree; Maker includes it as an optional Git submodule. Organizations host and operate their own service. The companion does not host a mail server or replace IMAP/SMTP.

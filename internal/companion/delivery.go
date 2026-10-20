@@ -155,18 +155,31 @@ func (s *service) delivery(w http.ResponseWriter, r *http.Request, owner string)
 		if !readJSON(w, r, &input) {
 			return true
 		}
+		if input.ID == "" || len(input.ID) > 128 {
+			problem(w, 400, "A scheduled message ID is required.")
+			return true
+		}
 		// A claimed message cannot be recalled, even if SMTP is still in progress.
-		result, err := s.db.ExecContext(r.Context(), "DELETE FROM delivery_jobs WHERE owner=? AND id=? AND campaign_id='' AND status!='SENDING'", owner, input.ID)
+		result, err := s.db.ExecContext(r.Context(), "UPDATE delivery_jobs SET status='CANCELLED' WHERE owner=? AND id=? AND campaign_id='' AND status IN ('PENDING','CANCELLED')", owner, input.ID)
 		if err != nil {
 			problem(w, 503, "Could not cancel message.")
 			return true
 		}
 		n, _ := result.RowsAffected()
 		if n != 1 {
-			problem(w, 409, "Message is missing or already being submitted; it cannot be recalled.")
-			return true
+			var status string
+			err = s.db.QueryRowContext(r.Context(), "SELECT status FROM delivery_jobs WHERE owner=? AND id=? AND campaign_id=''", owner, input.ID).Scan(&status)
+			if err != sql.ErrNoRows {
+				if err != nil {
+					problem(w, 503, "Could not check cancellation.")
+				} else {
+					problem(w, 409, "This message has already been submitted; it cannot be recalled.")
+				}
+				return true
+			}
+			// Already absent is safe to acknowledge, without leaking another owner.
 		}
-		reply(w, 200, map[string]bool{"success": true})
+		reply(w, 200, map[string]any{"success": true, "status": "CANCELLED"})
 	default:
 		problem(w, 405, "Method not allowed.")
 	}

@@ -49,7 +49,7 @@ func TestScheduledQueueAndWorker(t *testing.T) {
 	if len(request(t, s, "GET", "/api/mail/scheduled", other, "", 200)["scheduled"].([]any)) != 0 {
 		t.Fatal("cross-owner disclosure")
 	}
-	request(t, s, "DELETE", "/api/mail/scheduled", other, `{"id":"`+id+`"}`, 409)
+	request(t, s, "DELETE", "/api/mail/scheduled", other, `{"id":"`+id+`"}`, 200)
 }
 func TestScheduledMessageWaitsAndPastDatesAreRejected(t *testing.T) {
 	s, token := deliveryService(t)
@@ -67,6 +67,18 @@ func TestScheduledMessageWaitsAndPastDatesAreRejected(t *testing.T) {
 	m := deliveryMessage{To: []string{"b@example.test"}, Subject: "Past date", ScheduledFor: time.Now().Add(-10 * time.Second).UTC().Format(time.RFC3339)}
 	raw, _ := json.Marshal(m)
 	request(t, s, "POST", "/api/mail/send", token, string(raw), 400)
+}
+func TestCancellationIsIdempotentAndCannotEraseSentHistory(t *testing.T) {
+	s, token := deliveryService(t)
+	id := schedule(t, s, token)
+	for i := 0; i < 2; i++ { request(t, s, "DELETE", "/api/mail/scheduled", token, `{"id":"`+id+`"}`, 200) }
+	var status string
+	s.db.QueryRow("SELECT status FROM delivery_jobs WHERE id=?", id).Scan(&status)
+	if status != "CANCELLED" { t.Fatal(status) }
+	s.db.Exec("UPDATE delivery_jobs SET status='SENT' WHERE id=?", id)
+	request(t, s, "DELETE", "/api/mail/scheduled", token, `{"id":"`+id+`"}`, 409)
+	s.db.QueryRow("SELECT status FROM delivery_jobs WHERE id=?", id).Scan(&status)
+	if status != "SENT" { t.Fatal("sent history erased") }
 }
 func TestDeliveryFailuresNeverAutomaticallyResendAndCancellationWorks(t *testing.T) {
 	s, token := deliveryService(t)
