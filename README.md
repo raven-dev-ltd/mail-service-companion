@@ -14,6 +14,8 @@ This is an independent open-source project maintained by RAVEN Developers Ltd. I
 | Android push | Signed mail-server events → companion → FCM → direct IMAP fetch on phone |
 | Calendar, server snooze, tracking analytics | Not implemented |
 
+Label IDs remain unchanged in storage. The `keyword` returned by the label API now encodes the ID as a 46-character, unpadded base64url keyword; `legacyKeyword` identifies the older 67-character form. This fits Dovecot's [default 50-character keyword limit](https://doc.dovecot.org/latest/core/summaries/settings.html#mail-max-keyword-length) without a server setting change. Updated clients search both forms, remove either assignment, and use compact keywords for new assignments. After upgrading a client, save one app-managed rule once to refresh its Sieve script; this recompiles all app-managed label actions without recreating labels or editing the database. Existing mail is not relabeled automatically: use the explicit existing-Inbox option when wanted.
+
 Employee passwords are used transiently for TLS IMAP sign-in verification and **never persisted by the companion**. Background sending uses an administrator relay identity or an explicitly IP-allowlisted relay. Push uses signed server events, not password-based mailbox polling. Queued message contents, recipients, contacts, device tokens and session metadata are still stored: this is not a zero-data service.
 
 ## Start here

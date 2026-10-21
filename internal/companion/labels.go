@@ -1,12 +1,22 @@
 package companion
 
 import (
+	"encoding/base64"
+	"encoding/hex"
 	"net/http"
 	"regexp"
 	"strings"
 )
 
 var labelColor = regexp.MustCompile(`^#[0-9a-fA-F]{6}$`)
+
+func labelKeyword(id string) string {
+	data, err := hex.DecodeString(id)
+	if err != nil || len(data) != 32 {
+		return ""
+	}
+	return "mm_" + base64.RawURLEncoding.EncodeToString(data)
+}
 
 func (s *service) labels(w http.ResponseWriter, r *http.Request, owner string) bool {
 	if r.URL.Path != "/api/labels" && !strings.HasPrefix(r.URL.Path, "/api/labels/") {
@@ -28,7 +38,12 @@ func (s *service) labels(w http.ResponseWriter, r *http.Request, owner string) b
 				problem(w, 503, "Could not read labels.")
 				return true
 			}
-			items = append(items, map[string]string{"id": id, "name": name, "color": color, "keyword": "mm_" + id})
+			keyword := labelKeyword(id)
+			if keyword == "" {
+				problem(w, 503, "Could not read labels. Ask your administrator for help.")
+				return true
+			}
+			items = append(items, map[string]string{"id": id, "name": name, "color": color, "keyword": keyword, "legacyKeyword": "mm_" + id})
 		}
 		if rows.Err() != nil {
 			problem(w, 503, "Could not read labels.")
@@ -75,7 +90,7 @@ func (s *service) labels(w http.ResponseWriter, r *http.Request, owner string) b
 				return true
 			}
 		}
-		reply(w, 200, map[string]any{"label": map[string]string{"id": id, "name": input.Name, "color": input.Color, "keyword": "mm_" + id}})
+		reply(w, 200, map[string]any{"label": map[string]string{"id": id, "name": input.Name, "color": input.Color, "keyword": labelKeyword(id), "legacyKeyword": "mm_" + id}})
 	case r.Method == "DELETE" && id != "":
 		result, err := s.db.ExecContext(r.Context(), "DELETE FROM labels WHERE owner=? AND id=?", owner, id)
 		if err != nil {

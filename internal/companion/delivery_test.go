@@ -169,6 +169,9 @@ func TestLabelsIsolationAndRename(t *testing.T) {
 	b := login(t, s, "b@example.test")
 	label := request(t, s, "POST", "/api/labels", a, `{"name":"Work","color":"#123456"}`, 200)["label"].(map[string]any)
 	id := label["id"].(string)
+	if keyword, ok := label["keyword"].(string); !ok || len(keyword) != 46 || keyword != labelKeyword(id) {
+		t.Fatal("label response must use the compact IMAP keyword without changing its ID")
+	}
 	request(t, s, "POST", "/api/labels", a, `{"name":"Default color"}`, 200)
 	request(t, s, "PUT", "/api/labels/"+id, b, `{"name":"Stolen","color":"#123456"}`, 404)
 	request(t, s, "PUT", "/api/labels/"+id, a, `{"name":"Projects","color":"#654321"}`, 200)
