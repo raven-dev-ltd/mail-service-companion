@@ -4,7 +4,7 @@
 
 Use an organization-controlled Linux server with Docker Compose, outbound TLS IMAP, and a domain you control. Add an A record such as `mail-features.example.com` pointing at the VPS IPv4 address. Add AAAA only when IPv6 works. Any custom subdomain works. Leave existing MX records unchanged.
 
-Allow inbound 80/443 for your HTTPS proxy; do not expose the companion port publicly. On an existing Mailcow/web host, reuse its proxy instead of competing for ports. Clone the standalone repository into a private server directory (or use the initialized `companion/` submodule inside Mail App Maker):
+Allow inbound 80/443 for your HTTPS proxy; do not expose the companion port publicly. On an existing Mailcow/web host, reuse its proxy instead of competing for ports. Clone this standalone repository into a private server directory; Mail App Maker does not bundle it or manage its releases:
 
 ```sh
 git clone https://github.com/raven-dev-ltd/mail-service-companion.git

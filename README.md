@@ -4,7 +4,7 @@ Scheduled cancellations are atomic and repeatable: only a pending job can become
 
 Optional, organization-hosted mail features in one Go executable, one SQLite data volume and one in-process delivery worker. No Redis, external database server or access to the mail server's internal database is required. This is a small stateful feature service, not a stateless proxy.
 
-This is an independent open-source project maintained by RAVEN Developers Ltd. It can be deployed without the Mail App Maker source tree; Maker includes it as an optional Git submodule. Organizations host and operate their own service. The companion does not host a mail server or replace IMAP/SMTP.
+This is an independent open-source project maintained by RAVEN Devs, cloned, tested and deployed separately from Mail App Maker. Maker and generated clients do not require its source or a Go toolchain. Organizations optionally host and operate this service and enter its HTTPS URL in Maker. The companion does not host a mail server or replace IMAP/SMTP.
 
 | Feature | Implementation |
 | --- | --- |
@@ -79,6 +79,6 @@ Schema 6 removes legacy employee-credential tables and old push registrations. E
 
 ## License
 
-Copyright (c) 2026 RAVEN Developers Ltd. Original RAVEN-owned code and documentation in this revision use [GNU GPLv3 only](LICENSE) (SPDX: GPL-3.0-only). Both commercial and noncommercial use are permitted under GPLv3 without a separate commercial-use fee. Paid deployment assistance and support are optional services, not a condition of GPL use.
+Copyright (c) 2026 RAVEN Devs Original RAVEN-owned code and documentation in this revision use [GNU GPLv3 only](LICENSE) (SPDX: GPL-3.0-only). Both commercial and noncommercial use are permitted under GPLv3 without a separate commercial-use fee. Paid deployment assistance and support are optional services, not a condition of GPL use.
 
 Keep copyright/license notices and provide corresponding source as GPLv3 requires when distributing covered binaries or modifications. Read the full license and [NOTICE](NOTICE). Third-party dependencies retain their own licenses; no trademark rights, warranty or hosted service are included. Earlier MIT and PolyForm revisions retain their original grants.
