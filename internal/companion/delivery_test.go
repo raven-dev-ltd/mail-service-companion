@@ -1,9 +1,11 @@
 package companion
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
+	"net/mail"
 	"strings"
 	"sync"
 	"testing"
@@ -140,13 +142,16 @@ func TestCampaignSnapshotsPersonalizationAndDuplicateLaunch(t *testing.T) {
 	template := request(t, s, "POST", "/api/templates", token, `{"name":"Welcome","subject":"Hi {{first_name}}","htmlBody":"<p>{{name}} {{email}}</p>"}`, 201)["template"].(map[string]any)["id"].(string)
 	input, _ := json.Marshal(map[string]any{"name": "Launch", "templateId": template, "listId": listID})
 	id := request(t, s, "POST", "/api/campaigns", token, string(input), 201)["campaign"].(map[string]any)["id"].(string)
-	body := `{"action":"launch","campaignId":"` + id + `"}`
+	body := `{"action":"launch","campaignId":"` + id + `","fromName":"Updates Team","replyTo":"help@example.test"}`
 	request(t, s, "POST", "/api/campaigns", token, body, 200)
 	request(t, s, "POST", "/api/campaigns", token, body, 409)
 	var payload string
 	s.db.QueryRow("SELECT payload FROM delivery_jobs WHERE campaign_id=?", id).Scan(&payload)
 	var m deliveryMessage
 	json.Unmarshal([]byte(payload), &m)
+	if m.FromName != "Updates Team" || m.ReplyTo != "help@example.test" {
+		t.Fatal("campaign lost sender identity", m)
+	}
 	if !strings.Contains(m.HTML, "&lt;Reader&gt;") || len(m.To) != 1 || m.To[0] != "reader@example.test" {
 		t.Fatal("unsafe personalization", m)
 	}
@@ -203,5 +208,38 @@ func TestMIMEKeepsBCCPrivateAndUnicodeEncoded(t *testing.T) {
 	wire := string(deliveryWire("a@example.test", m, strings.Repeat("a", 64)))
 	if strings.Contains(wire, "secret@example.test") || !strings.Contains(wire, "=?UTF-8?") || !strings.Contains(wire, "Content-Transfer-Encoding: base64") {
 		t.Fatal("unsafe MIME headers", wire)
+	}
+}
+func TestDeliveryRetainsSenderNameAndReplyTo(t *testing.T) {
+	s, token := deliveryService(t)
+	m := deliveryMessage{From: "a@example.test", FromName: "Support Team", ReplyTo: "help@example.test", To: []string{"a@example.test"}, Subject: "Identity fixture", Text: "fixture only", ScheduledFor: time.Now().Add(time.Hour).UTC().Format(time.RFC3339)}
+	raw, _ := json.Marshal(m)
+	id := request(t, s, "POST", "/api/mail/send", token, string(raw), 201)["jobId"].(string)
+	var saved string
+	if err := s.db.QueryRow("SELECT payload FROM delivery_jobs WHERE id=?", id).Scan(&saved); err != nil {
+		t.Fatal(err)
+	}
+	var restored deliveryMessage
+	if err := json.Unmarshal([]byte(saved), &restored); err != nil {
+		t.Fatal(err)
+	}
+	message, err := mail.ReadMessage(bytes.NewReader(deliveryWire("a@example.test", restored, id)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	from, err := mail.ParseAddress(message.Header.Get("From"))
+	if err != nil || from.Name != "Support Team" || from.Address != "a@example.test" {
+		t.Fatal(from, err)
+	}
+	reply, err := mail.ParseAddress(message.Header.Get("Reply-To"))
+	if err != nil || reply.Address != "help@example.test" {
+		t.Fatal(reply, err)
+	}
+	for _, bad := range []deliveryMessage{{FromName: "Bad\r\nBcc: other"}, {ReplyTo: "help@example.test\r\nBcc: other"}} {
+		bad.To = []string{"a@example.test"}
+		bad.Subject = "Fixture"
+		if validateDelivery("a@example.test", &bad) == nil {
+			t.Fatal("accepted injected identity")
+		}
 	}
 }

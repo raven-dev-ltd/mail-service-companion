@@ -34,7 +34,7 @@ func loadConfig() (Config, error) {
 			continue
 		}
 		switch id {
-		case "contacts", "contactLists", "templates", "labels", "scheduledSend", "campaigns", "push":
+		case "identityProfile", "contacts", "contactLists", "templates", "labels", "scheduledSend", "campaigns", "push":
 			c.DisabledFeatures = append(c.DisabledFeatures, id)
 		default:
 			return c, errors.New("unknown COMPANION_DISABLED_FEATURES entry")

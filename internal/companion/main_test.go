@@ -241,7 +241,7 @@ func TestMigrationRestartAndDowngrade(t *testing.T) {
 	if err = db.QueryRow("SELECT count(*) FROM contacts").Scan(&count); err != nil || count != 1 {
 		t.Fatal("migration lost data", err)
 	}
-	_, err = db.Exec("INSERT INTO schema_version(version) VALUES(7)")
+	_, err = db.Exec("INSERT INTO schema_version(version) VALUES(8)")
 	if err != nil {
 		t.Fatal(err)
 	}

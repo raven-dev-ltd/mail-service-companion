@@ -139,6 +139,8 @@ func (s *service) campaigns(w http.ResponseWriter, r *http.Request, owner string
 	}
 	var input struct {
 		Action      string  `json:"action"`
+		FromName    string  `json:"fromName"`
+		ReplyTo     string  `json:"replyTo"`
 		CampaignID  string  `json:"campaignId"`
 		Name        string  `json:"name"`
 		TemplateID  string  `json:"templateId"`
@@ -235,7 +237,7 @@ func (s *service) campaigns(w http.ResponseWriter, r *http.Request, owner string
 		return true
 	}
 	for _, p := range people {
-		m := deliveryMessage{From: owner, To: []string{p.email}, Subject: personalize(subject, p.name, p.email, false), HTML: personalize(body, p.name, p.email, true), ScheduledFor: due.Format(time.RFC3339)}
+		m := deliveryMessage{From: owner, FromName: input.FromName, ReplyTo: input.ReplyTo, To: []string{p.email}, Subject: personalize(subject, p.name, p.email, false), HTML: personalize(body, p.name, p.email, true), ScheduledFor: due.Format(time.RFC3339)}
 		if validateDelivery(owner, &m) != nil {
 			problem(w, 400, "A personalized recipient or message is invalid.")
 			return true

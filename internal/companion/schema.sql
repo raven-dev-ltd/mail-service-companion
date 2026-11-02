@@ -60,3 +60,7 @@ CREATE TABLE IF NOT EXISTS push_jobs (
 );
 CREATE INDEX IF NOT EXISTS push_jobs_due ON push_jobs(due);
 INSERT OR IGNORE INTO schema_version(version) VALUES(6);
+CREATE TABLE IF NOT EXISTS identity_profiles (
+ owner TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+INSERT OR IGNORE INTO schema_version(version) VALUES(7);

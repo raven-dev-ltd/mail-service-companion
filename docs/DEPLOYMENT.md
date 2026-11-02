@@ -7,7 +7,7 @@ Use an organization-controlled Linux server with Docker Compose, outbound TLS IM
 Allow inbound 80/443 for your HTTPS proxy; do not expose the companion port publicly. On an existing Mailcow/web host, reuse its proxy instead of competing for ports. Clone this standalone repository into a private server directory; Mail App Maker does not bundle it or manage its releases:
 
 ```sh
-git clone https://github.com/raven-dev-ltd/mail-service-companion.git
+git clone https://github.com/raven-dev-s/mail-service-companion.git
 cd mail-service-companion
 cp .env.example .env
 chmod 600 .env
@@ -104,7 +104,17 @@ curl --fail https://mail-features.example.com/healthz
 docker compose logs --tail=50 companion
 ```
 
-Do not run an older binary against schema 6. Rollback requires the matching pre-upgrade database snapshot, with consequences for changes made since it. Run only one instance per volume; horizontal/shared-volume operation is unsupported.
+Do not run an older binary against schema 7. Rollback requires the matching pre-upgrade database snapshot, with consequences for changes made since it. Run only one instance per volume; horizontal/shared-volume operation is unsupported.
+
+## Sender-profile settings
+
+Updated scheduled/campaign requests also accept optional `fromName` and a single `replyTo` address. Both are validated before queueing and captured in each delivery job, so later profile edits do not mutate already queued mail. Neither changes the authenticated envelope sender, grants aliases or adds recipients. Existing clients that omit them remain compatible. Update the client alongside the companion when using these fields.
+
+Upgrade/rebuild the service and recreate the container using its existing private `.env` and persistent volume. Startup migrates schema 6 to 7 by adding `identity_profiles`; existing mail-feature records remain. No new secrets or DNS changes are required. Rebuild the organization client from the updated Maker too. The authenticated manifest advertises `profileVersion:1`/`identityProfile`; add `identityProfile` to `COMPANION_DISABLED_FEATURES` to disable profile API access.
+
+`GET /api/profile` returns `{source:"companion",profile:{...},writableFields:[...]}`. `PUT /api/profile` accepts `{source:"companion",profile:{...}}` and idempotently replaces the signed-in mailbox's profile. Allowed fields: `defaultFromName` (200), `replyToAddress` (254), `emailSignature` (64 KiB), `signatureMode` (`custom`/`template`), `signatureEnabled`, `signaturePlacement` (`above`/`below`) and bounded signature-template fields. Text limits are UTF-8 bytes on the service. Website/logo URLs require HTTPS without credentials. Header line breaks, unknown fields and credentials are rejected. HTML is stored as data; clients must sanitize before display. Owner comes from the verified session, never the payload. Protect this personal information and its backups like contacts/templates.
+
+Clients prefer a supported provider identity API. This fallback shares app sender/signature settings, not Mailcow directory, webmail preferences or alias permissions. Employee passwords are transient sign-in checks, never profile records. Users can choose device-only overrides; old local identities are not uploaded automatically. Verify separate-mailbox isolation and read-after-write before rollout; health alone is not acceptance.
 
 ## Troubleshooting and acceptance tests
 

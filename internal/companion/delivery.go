@@ -13,6 +13,8 @@ import (
 
 type deliveryMessage struct {
 	From         string   `json:"from"`
+	FromName     string   `json:"fromName,omitempty"`
+	ReplyTo      string   `json:"replyTo,omitempty"`
 	To           []string `json:"to"`
 	CC           []string `json:"cc,omitempty"`
 	BCC          []string `json:"bcc,omitempty"`
@@ -28,6 +30,9 @@ func (s *service) deliveryConfigured() bool {
 	return s.config.SMTPHost != "" && (s.config.SMTPMode == "service" || s.config.SMTPMode == "ip-allowlist")
 }
 func validateDelivery(owner string, m *deliveryMessage) error {
+	if !validName(m.FromName, 200) || m.ReplyTo != "" && normalizedEmail(m.ReplyTo) == "" {
+		return errors.New("Check your sender name and Reply-To address.")
+	}
 	if m.From == "" {
 		m.From = owner
 	}

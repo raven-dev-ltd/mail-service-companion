@@ -30,7 +30,13 @@ func encodedBody(value string) string {
 func deliveryWire(owner string, m deliveryMessage, id string) []byte {
 	var b bytes.Buffer
 	from, _ := mail.ParseAddress(m.From)
+	if m.FromName != "" {
+		from.Name = m.FromName
+	}
 	fmt.Fprintf(&b, "From: %s\r\nTo: %s\r\n", from.String(), strings.Join(m.To, ",\r\n "))
+	if m.ReplyTo != "" {
+		fmt.Fprintf(&b, "Reply-To: %s\r\n", (&mail.Address{Address: m.ReplyTo}).String())
+	}
 	if len(m.CC) > 0 {
 		fmt.Fprintf(&b, "Cc: %s\r\n", strings.Join(m.CC, ",\r\n "))
 	}

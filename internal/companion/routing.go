@@ -52,7 +52,7 @@ func (s *service) defaultRouting() routingConfig {
 	p.Features["rules"] = featureRoute{Source: "mail-server", Protocol: "ManageSieve", RequiresMailboxCheck: true, Reason: "Verify the configured ManageSieve endpoint and mailbox permissions at sign-in."}
 	p.Features["calendar"] = featureRoute{Source: "mail-server", Protocol: "CalDAV", RequiresMailboxCheck: true, Reason: "Requires a supported calendar adapter and account discovery."}
 	p.Features["notifications.poll"] = featureRoute{Source: "device", Protocol: "Android background checks", Enabled: true}
-	for _, id := range []string{"contacts", "contactLists", "templates", "labels", "scheduledSend", "campaigns", "push", "snooze"} {
+	for _, id := range []string{"identityProfile", "contacts", "contactLists", "templates", "labels", "scheduledSend", "campaigns", "push", "snooze"} {
 		enabled := id != "snooze"
 		reason := ""
 		if id == "scheduledSend" || id == "campaigns" {
@@ -193,6 +193,9 @@ func (s *service) configureRouting(ctx context.Context) error {
 }
 
 func companionResource(path string) string {
+	if path == "/api/profile" {
+		return "identityProfile"
+	}
 	for _, entry := range [][2]string{{"/api/contact-lists", "contactLists"}, {"/api/contacts", "contacts"}, {"/api/avatars/image", "contacts"}, {"/api/templates", "templates"}, {"/api/labels", "labels"}, {"/api/campaigns", "campaigns"}, {"/api/mail/scheduled", "scheduledSend"}, {"/api/native/push", "push"}} {
 		if path == entry[0] || strings.HasPrefix(path, entry[0]+"/") {
 			return entry[1]
@@ -239,6 +242,8 @@ func (s *service) dispatchFeature(w http.ResponseWriter, r *http.Request, owner 
 		id = "scheduledSend"
 	}
 	switch id {
+	case "identityProfile":
+		return s.identityProfile(w, r, owner)
 	case "push":
 		return s.pushRegistration(w, r, owner)
 	case "scheduledSend":

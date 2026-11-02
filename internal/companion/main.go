@@ -75,7 +75,7 @@ func openStore(directory string) (*sql.DB, error) {
 		if err = db.QueryRow("SELECT coalesce(max(version),0) FROM schema_version").Scan(&version); err != nil {
 			return fail(err)
 		}
-		if version > 6 {
+		if version > 7 {
 			return fail(errors.New("database schema is newer than this binary; refusing downgrade"))
 		}
 	}
@@ -291,7 +291,7 @@ func (s *service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					features[id] = route.Enabled
 				}
 			}
-			reply(w, 200, map[string]any{"schemaVersion": 1, "adapter": "companion-v1", "deliveryVersion": 1, "pushVersion": 2, "labelsVersion": 1, "routing": plan, "features": features})
+			reply(w, 200, map[string]any{"schemaVersion": 1, "adapter": "companion-v1", "deliveryVersion": 1, "pushVersion": 2, "labelsVersion": 1, "profileVersion": 1, "routing": plan, "features": features})
 			return
 		}
 	default:

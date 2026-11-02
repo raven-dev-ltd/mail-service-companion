@@ -9,6 +9,7 @@ This is an independent open-source project maintained by RAVEN Devs, cloned, tes
 | Feature | Implementation |
 | --- | --- |
 | Contacts, lists, photos, templates | Private per-mailbox SQLite records |
+| Sender name, Reply-To and signature settings | Mailbox-owned profile API; updated clients prefer a usable provider identity API and can keep overrides device-only |
 | Labels | Companion definitions; IMAP keywords hold message assignments |
 | Scheduled sending and basic campaigns | Durable queue through an administrator-configured TLS SMTP relay |
 | Android push | Signed mail-server events → companion → FCM → direct IMAP fetch on phone |
@@ -20,12 +21,14 @@ Employee passwords are used transiently for TLS IMAP sign-in verification and **
 
 ## Start here
 
+Schema 7 adds optional sender profiles automatically. No new secret is required. `GET/PUT /api/profile` is owner-scoped and advertised as `identityProfile`/`profileVersion:1`; disable it with `COMPANION_DISABLED_FEATURES=identityProfile` if unwanted. It does not edit the mail directory or grant aliases. Back up the volume before upgrading; do not run an older schema-6 binary against the upgraded store. See [Sender-profile settings](docs/DEPLOYMENT.md#sender-profile-settings) for setup and API details.
+
 ### Standalone installation
 
 Install Git and Docker Engine with the Compose plugin on your organization-controlled server. Then:
 
 ```sh
-git clone https://github.com/raven-dev-ltd/mail-service-companion.git
+git clone https://github.com/raven-dev-s/mail-service-companion.git
 cd mail-service-companion
 cp .env.example .env
 chmod 600 .env
